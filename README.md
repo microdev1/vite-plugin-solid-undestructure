@@ -103,9 +103,9 @@ function Button(_props) {
 
 ```tsx
 // Before
-function Card({ title, description, ...rest }) {
+function Card({ title, description, ...props }) {
   return (
-    <div {...rest}>
+    <div {...props}>
       <h2>{title}</h2>
       <p>{description}</p>
     </div>
@@ -118,7 +118,7 @@ import { splitProps } from 'solid-js'
 function Card(_props) {
   const [, rest] = splitProps(_props, ['title', 'description'])
   return (
-    <div {...rest}>
+    <div {...props}>
       <h2>{_props.title}</h2>
       <p>{_props.description}</p>
     </div>
@@ -138,7 +138,7 @@ function TestComponent({
   avatar = '/default.png',
   items,
   nested: { a, b },
-  ...rest
+  ...props
 }: {
   name?: string
   count?: number
@@ -149,7 +149,7 @@ function TestComponent({
   onClick?: () => void
 }) {
   return (
-    <div {...rest}>
+    <div {...props}>
       <p>{rest.class}</p>
       <pre>{a}</pre>
       <pre>{b}</pre>
@@ -170,7 +170,7 @@ function TestComponent(_props) {
   const _merged = mergeProps({ name: 'World', count: 0, avatar: '/default.png' }, _props)
   const [, rest] = splitProps(_merged, ['name', 'count', 'avatar', 'items', 'nested'])
   return (
-    <div {...rest}>
+    <div {...props}>
       <p>{rest.class}</p>
       <pre>{_merged.nested.a}</pre>
       <pre>{_merged.nested.b}</pre>

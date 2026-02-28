@@ -58,8 +58,8 @@ function Button({ label = 'Click me', disabled = false }) {
 describe('rest properties', () => {
   test('uses splitProps for rest spread', () => {
     const code = `
-function Card({ title, ...rest }) {
-  return <div {...rest}><h2>{title}</h2></div>
+function Card({ title, ...props }) {
+  return <div {...props}><h2>{title}</h2></div>
 }
 `
     const out = transformOrThrow(code)
@@ -89,8 +89,8 @@ function Info({ nested: { a, b } }) {
 describe('combined features', () => {
   test('defaults + rest produces mergeProps AND splitProps', () => {
     const code = `
-function Widget({ label = 'hi', ...rest }) {
-  return <div {...rest}>{label}</div>
+function Widget({ label = 'hi', ...props }) {
+  return <div {...props}>{label}</div>
 }
 `
     const out = transformOrThrow(code)
@@ -108,7 +108,7 @@ function TestComponent({
   avatar = '/default.png',
   items,
   nested: { a, b },
-  ...rest
+  ...props
 }: {
   name?: string
   count?: number
@@ -119,7 +119,7 @@ function TestComponent({
   onClick?: () => void
 }) {
   return (
-    <div {...rest}>
+    <div {...props}>
       <p>{rest.class}</p>
       <pre>{a}</pre>
       <pre>{b}</pre>
@@ -155,7 +155,7 @@ export default TestComponent
     expectContains(out, '.nested.b')
 
     // rest should still be used directly
-    expectContains(out, '{...rest}')
+    expectContains(out, '{...props}')
     expectContains(out, 'rest.class')
 
     // No leftover destructuring in function signature

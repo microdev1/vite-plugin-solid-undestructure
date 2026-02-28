@@ -41,8 +41,8 @@ function Button({ label = 'Click me' }) {
 describe('import-manager: splitProps import', () => {
   test('adds splitProps import when no solid-js import exists', () => {
     const code = `
-function Card({ title, ...rest }) {
-  return <div {...rest}><h2>{title}</h2></div>
+function Card({ title, ...props }) {
+  return <div {...props}><h2>{title}</h2></div>
 }
 `
     const out = transformOrThrow(code)
@@ -53,8 +53,8 @@ function Card({ title, ...rest }) {
     const code = `
 import { splitProps } from 'solid-js'
 
-function Card({ title, ...rest }) {
-  return <div {...rest}><h2>{title}</h2></div>
+function Card({ title, ...props }) {
+  return <div {...props}><h2>{title}</h2></div>
 }
 `
     const out = transformOrThrow(code)
@@ -65,8 +65,8 @@ function Card({ title, ...rest }) {
 describe('import-manager: both mergeProps and splitProps', () => {
   test('adds both imports when neither exists', () => {
     const code = `
-function Widget({ label = 'hi', ...rest }) {
-  return <div {...rest}>{label}</div>
+function Widget({ label = 'hi', ...props }) {
+  return <div {...props}>{label}</div>
 }
 `
     const out = transformOrThrow(code)
@@ -78,8 +78,8 @@ function Widget({ label = 'hi', ...rest }) {
     const code = `
 import { mergeProps } from 'solid-js'
 
-function Widget({ label = 'hi', ...rest }) {
-  return <div {...rest}>{label}</div>
+function Widget({ label = 'hi', ...props }) {
+  return <div {...props}>{label}</div>
 }
 `
     const out = transformOrThrow(code)
@@ -91,8 +91,8 @@ function Widget({ label = 'hi', ...rest }) {
     const code = `
 import { mergeProps, splitProps } from 'solid-js'
 
-function Widget({ label = 'hi', ...rest }) {
-  return <div {...rest}>{label}</div>
+function Widget({ label = 'hi', ...props }) {
+  return <div {...props}>{label}</div>
 }
 `
     const out = transformOrThrow(code)
