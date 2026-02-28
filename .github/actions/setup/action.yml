@@ -1,12 +1,7 @@
 name: Setup
-description: Checkout code, init submodules, link modules, and install dependencies
+description: init submodules, link modules, and install dependencies
 
 inputs:
-  fetch-depth:
-    description: Git fetch depth (0 = full history)
-    required: false
-    default: '1'
-
   bun-version:
     description: Bun version to use
     required: false
@@ -15,12 +10,6 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Checkout code
-      uses: actions/checkout@v5
-      with:
-        fetch-depth: ${{ inputs.fetch-depth }}
-        submodules: recursive
-
     - name: Setup Bun
       uses: oven-sh/setup-bun@v2
       with:

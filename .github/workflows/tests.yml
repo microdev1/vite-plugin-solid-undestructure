@@ -11,6 +11,11 @@ jobs:
     name: Tests
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          submodules: recursive
+
       - name: Setup
         uses: ./.github/actions/setup
 
