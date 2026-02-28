@@ -1,4 +1,4 @@
-import type { NodePath } from '@babel/traverse'
+import { NodePath } from '@babel/traverse'
 import * as t from '@babel/types'
 
 /**
