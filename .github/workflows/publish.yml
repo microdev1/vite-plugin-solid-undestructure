@@ -83,27 +83,17 @@ jobs:
           name: dist
           path: dist/
 
-  approve:
-    name: Approval
-    needs: [checks, build]
-    runs-on: ubuntu-latest
-    environment: npm-publish
-    steps:
-      - name: Approved
-        run: echo "Publish approved"
-
   publish:
     name: Publish
-    needs: approve
+    needs: build
     runs-on: ubuntu-latest
+    environment: prod
     permissions:
       contents: read
       id-token: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -116,7 +106,10 @@ jobs:
           name: dist
           path: dist/
 
-      - name: Publish
-        run: bun publish --access public
+      - name: Set up npm auth
+        run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish
+        run: bun publish --access public

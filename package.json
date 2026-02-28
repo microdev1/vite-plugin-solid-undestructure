@@ -9,6 +9,17 @@
   "files": [
     "dist"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/microdev1/vite-plugin-solid-undestructure.git"
+  },
+  "keywords": [
+    "vite",
+    "solidjs",
+    "babel",
+    "plugin"
+  ],
+  "license": "MIT",
   "scripts": {
     "build": "bun build src --minify --packages=external --outfile=dist/index.js && tsc --declaration --emitDeclarationOnly --outDir dist",
     "type": "tsc --noEmit",
