@@ -4,19 +4,19 @@
   "private": true,
   "main": "./dist/index.js",
   "module": "./dist/index.js",
-  "types": "./dist/types/index.d.ts",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/index.js",
       "require": "./dist/index.js",
-      "types": "./dist/types/index.d.ts"
+      "types": "./dist/index.d.ts"
     }
   },
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "bun build src --minify --packages=external --outfile=dist/index.js && tsc --declaration --emitDeclarationOnly --outDir ./dist/types",
+    "build": "bun build src --minify --packages=external --outfile=dist/index.js && tsc --declaration --emitDeclarationOnly --outDir dist",
     "format": "prettier --write *",
     "lint": "eslint --cache src",
     "type": "tsc --noEmit",
