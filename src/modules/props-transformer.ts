@@ -1,6 +1,6 @@
 import { NodePath, Visitor } from '@babel/traverse'
 import * as t from '@babel/types'
-import { ensureImports } from './import-manager'
+import { ensureImports, MERGE_PROPS_ALIAS, SPLIT_PROPS_ALIAS } from './import-manager'
 
 /**
  * Transforms destructured props parameters into proper Solid.js reactive props access.
@@ -168,7 +168,7 @@ export function transformPropsDestructuring(
         t.variableDeclaration('const', [
           t.variableDeclarator(
             mergedIdentifier,
-            t.callExpression(t.identifier('mergeProps'), [defaultsObject, propsIdentifier])
+            t.callExpression(t.identifier(MERGE_PROPS_ALIAS), [defaultsObject, propsIdentifier])
           )
         ])
       )
@@ -178,7 +178,7 @@ export function transformPropsDestructuring(
         t.variableDeclaration('const', [
           t.variableDeclarator(
             mergedIdentifier,
-            t.callExpression(t.identifier('mergeProps'), [defaultsObject, propsIdentifier])
+            t.callExpression(t.identifier(MERGE_PROPS_ALIAS), [defaultsObject, propsIdentifier])
           )
         ])
       )
@@ -196,7 +196,7 @@ export function transformPropsDestructuring(
         t.variableDeclaration('const', [
           t.variableDeclarator(
             splitArray,
-            t.callExpression(t.identifier('splitProps'), [
+            t.callExpression(t.identifier(SPLIT_PROPS_ALIAS), [
               mergedIdentifier,
               t.arrayExpression(propsToSplit.map((prop) => t.stringLiteral(prop)))
             ])
@@ -219,7 +219,7 @@ export function transformPropsDestructuring(
         t.variableDeclaration('const', [
           t.variableDeclarator(
             splitArray,
-            t.callExpression(t.identifier('splitProps'), [
+            t.callExpression(t.identifier(SPLIT_PROPS_ALIAS), [
               propsIdentifier,
               t.arrayExpression(propsToSplit.map((prop) => t.stringLiteral(prop)))
             ])

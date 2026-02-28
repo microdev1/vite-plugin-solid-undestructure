@@ -8,11 +8,9 @@ import { transformPropsDestructuring } from './modules/props-transformer'
 
 // Handle ESM/CJS interop
 const traverse =
-  (traverseImport as unknown as { default: typeof traverseImport | undefined }).default ??
-  traverseImport
+  (traverseImport as unknown as { default?: typeof traverseImport }).default ?? traverseImport
 const generate =
-  (generateImport as unknown as { default: typeof generateImport | undefined }).default ??
-  generateImport
+  (generateImport as unknown as { default?: typeof generateImport }).default ?? generateImport
 
 /**
  * Vite plugin that transforms Solid.js component prop destructuring into reactive prop access.

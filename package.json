@@ -20,7 +20,7 @@
     "format": "prettier --write *",
     "lint": "eslint --cache src",
     "type": "tsc --noEmit",
-    "test": "bun test tests/index.test.ts"
+    "test": "bun test tests/"
   },
   "dependencies": {
     "@babel/generator": "^7.29.1",
