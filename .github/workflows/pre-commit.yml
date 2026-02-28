@@ -1,0 +1,53 @@
+name: pre-commit
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  pre-commit:
+    name: Pre-commit Checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Type (TypeScript)
+        id: type
+        continue-on-error: true
+        run: bun type
+
+      - name: Lint (ESLint)
+        id: lint
+        continue-on-error: true
+        run: bun lint
+
+      - name: Format (Prettier)
+        id: format
+        continue-on-error: true
+        run: bun check:format
+
+      - name: Aggregate Checks
+        if: steps.type.outcome == 'failure' || steps.lint.outcome == 'failure' || steps.format.outcome == 'failure'
+        run: |
+          echo "One or more pre-commit checks failed:"
+          if [ "${{ steps.type.outcome }}" == "failure" ]; then
+            echo "- Type check failed"
+          fi
+          if [ "${{ steps.lint.outcome }}" == "failure" ]; then
+            echo "- Linting failed"
+          fi
+          if [ "${{ steps.format.outcome }}" == "failure" ]; then
+            echo "- Code formatting issues found"
+          fi
+          exit 1

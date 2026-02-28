@@ -1,0 +1,128 @@
+name: Publish
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+jobs:
+  checks:
+    name: Checks
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Check tag version matches package.json
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          PKG_VERSION=$(jq -r '.version' package.json)
+          echo "Tag version:     $TAG_VERSION"
+          echo "package.json:    $PKG_VERSION"
+          if [ "$TAG_VERSION" != "$PKG_VERSION" ]; then
+            echo "FAIL: tag v$TAG_VERSION does not match package.json version $PKG_VERSION"
+            exit 1
+          fi
+
+      - name: Check pre-commit and tests for this commit
+        run: |
+          COMMIT_SHA="${{ github.sha }}"
+          REPO="${{ github.repository }}"
+          FAILED=0
+
+          check_workflow() {
+            local workflow_file="$1"
+            local result status conclusion
+
+            result=$(gh api "repos/$REPO/actions/workflows/$workflow_file/runs?head_sha=$COMMIT_SHA&per_page=1" \
+              --jq '.workflow_runs[0] | "\(.status) \(.conclusion)"')
+
+            read -r status conclusion <<< "$result"
+            echo "[$workflow_file] status=$status conclusion=$conclusion"
+
+            if [ "$status" != "completed" ] || [ "$conclusion" != "success" ]; then
+              echo "FAIL: $workflow_file did not pass for $COMMIT_SHA"
+              return 1
+            fi
+          }
+
+          check_workflow "pre-commit.yml" || FAILED=1
+          check_workflow "tests.yml"      || FAILED=1
+
+          exit $FAILED
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build:
+    name: Build
+    needs: checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build
+        run: bun run build
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  approve:
+    name: Approve Publishing
+    needs: [checks, build]
+    runs-on: ubuntu-latest
+    environment: npm-publish
+    steps:
+      - name: Approved
+        run: echo "Publish approved"
+
+  publish:
+    name: Publish to npm
+    needs: approve
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Publish
+        run: bun publish --access public
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
