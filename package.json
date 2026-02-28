@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-solid-undestructure",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Automatically transforms props destructuring in SolidJS components",
   "type": "module",
   "main": "./dist/index.js",
