@@ -50,11 +50,11 @@ bun add -d @types/babel__traverse @types/babel__generator @types/babel__core
 ## Usage
 
 ```typescript
-import solidDestructure from './plugins/solid-destructure'
+import solidUndestructure from './plugins/solid-undestructure'
 import solid from 'vite-plugin-solid'
 
 export default defineConfig({
-  plugins: [solidDestructure(), solid() /* other plugins */]
+  plugins: [solidUndestructure(), solid() /* other plugins */]
 })
 ```
 
@@ -202,5 +202,5 @@ function TestComponent(_props) {
 ## Testing
 
 ```bash
-bun test apps/frontend/plugins/solid-destructure
+bun test apps/frontend/plugins/solid-undestructure
 ```

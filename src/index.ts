@@ -19,7 +19,7 @@ const generate =
  */
 export default (): Plugin => {
   return {
-    name: 'solid-destructure',
+    name: 'solid-undestructure',
     enforce: 'pre',
     transform(code: string, id: string) {
       // Only process TypeScript/JavaScript files in components
