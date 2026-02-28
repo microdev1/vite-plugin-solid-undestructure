@@ -1,5 +1,5 @@
 {
-  "name": "@boilerplate/vite-plugin-solid-undestructure",
+  "name": "vite-plugin-solid-undestructure",
   "type": "module",
   "private": true,
   "main": "./dist/index.js",
