@@ -9,7 +9,7 @@ describe('processor.preprocess', () => {
       }
     `
     const [result] = processor.preprocess(code, 'Component.tsx')
-    expect(result).toContain('props.size')
+    expect(result).toContain('_props.size')
   })
 
   test('returns original code for non-component files', () => {
@@ -49,7 +49,7 @@ describe('processor.postprocess', () => {
       [
         {
           ruleId: 'solid/reactivity',
-          message: "The reactive variable 'props.size' should be used within JSX.",
+          message: "The reactive variable '_props.size' should be used within JSX.",
           line: 3,
           column: 5
         }
@@ -75,7 +75,7 @@ describe('processor.postprocess', () => {
       [
         {
           ruleId: 'solid/reactivity',
-          message: "The reactive variable 'props.size' should be used within JSX.",
+          message: "The reactive variable '_props.size' should be used within JSX.",
           line: 3,
           column: 5
         }

@@ -47,10 +47,10 @@ export const processor = {
 
     return messages[0].map((msg) => {
       let { message } = msg
-      // Replace 'props.X' with 'X' (the original destructured name) in error messages
+      // Replace '_props.X' with 'X' (the original destructured name) in error messages
       for (const [localName, propKey] of propMappings) {
-        // Handle both 'props.X' (top-level) and 'props.a.b' (nested) patterns
-        const propsAccess = propKey.includes('.') ? `props.${propKey}` : `props.${propKey}`
+        // Handle both '_props.X' (top-level) and '_props.a.b' (nested) patterns
+        const propsAccess = `_props.${propKey}`
         message = message.replaceAll(`'${propsAccess}'`, `'${localName}'`)
       }
       return { ...msg, message }

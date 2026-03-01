@@ -30,8 +30,8 @@ describe('transformForLinting', () => {
         return <div>{size}</div>
       }
     `)
-    expect(code).toContain('function Component(props)')
-    expect(code).toContain('props.size')
+    expect(code).toContain('function Component(_props)')
+    expect(code).toContain('_props.size')
     expect(code).not.toContain('{ size }')
   })
 
@@ -41,8 +41,8 @@ describe('transformForLinting', () => {
         return <div>{size}</div>
       }
     `)
-    expect(code).toContain('(props)')
-    expect(code).toContain('props.size')
+    expect(code).toContain('(_props)')
+    expect(code).toContain('_props.size')
   })
 
   test('transforms multiple destructured props', () => {
@@ -51,10 +51,10 @@ describe('transformForLinting', () => {
         return <div style={{ color }}>{label}: {size}</div>
       }
     `)
-    expect(code).toContain('function Component(props)')
-    expect(code).toContain('props.size')
-    expect(code).toContain('props.color')
-    expect(code).toContain('props.label')
+    expect(code).toContain('function Component(_props)')
+    expect(code).toContain('_props.size')
+    expect(code).toContain('_props.color')
+    expect(code).toContain('_props.label')
   })
 
   test('handles renamed props', () => {
@@ -63,8 +63,8 @@ describe('transformForLinting', () => {
         return <div>{mySize}</div>
       }
     `)
-    expect(code).toContain('props.size')
-    expect(code).not.toContain('props.mySize')
+    expect(code).toContain('_props.size')
+    expect(code).not.toContain('_props.mySize')
   })
 
   test('provides correct prop mappings for renamed props', () => {
@@ -83,7 +83,7 @@ describe('transformForLinting', () => {
         return <div>{size}</div>
       }
     `)
-    expect(code).toContain('props.size')
+    expect(code).toContain('_props.size')
   })
 
   test('preserves TypeScript type annotations', () => {
@@ -92,7 +92,7 @@ describe('transformForLinting', () => {
         return <div>{size}</div>
       }
     `)
-    expect(code).toMatch(/props:\s*\{\s*size:\s*'sm'\s*\|\s*'lg'/)
+    expect(code).toMatch(/_props:\s*\{\s*size:\s*'sm'\s*\|\s*'lg'/)
     expect(code).not.toContain('{ size }')
   })
 
@@ -102,9 +102,9 @@ describe('transformForLinting', () => {
         return <div {...rest}>{size}</div>
       }
     `)
-    expect(code).toContain('props.size')
-    // rest should not be transformed to props.rest
-    expect(code).not.toContain('props.rest')
+    expect(code).toContain('_props.size')
+    // rest should not be transformed to _props.rest
+    expect(code).not.toContain('_props.rest')
   })
 
   test('handles nested destructuring', () => {
@@ -113,8 +113,8 @@ describe('transformForLinting', () => {
         return <div>{a} {b}</div>
       }
     `)
-    expect(code).toContain('props.nested.a')
-    expect(code).toContain('props.nested.b')
+    expect(code).toContain('_props.nested.a')
+    expect(code).toContain('_props.nested.b')
   })
 
   test('provides correct mappings for nested props', () => {
@@ -133,7 +133,7 @@ describe('transformForLinting', () => {
         return <div>{size}</div>
       }
     `)
-    // The property key 'size' in { size: 123 } should NOT become props.size
+    // The property key 'size' in { size: 123 } should NOT become _props.size
     expect(code).toContain('{ size: 123 }')
   })
 
@@ -146,8 +146,8 @@ describe('transformForLinting', () => {
         return <span>{b}</span>
       }
     `)
-    expect(code).toContain('props.a')
-    expect(code).toContain('props.b')
+    expect(code).toContain('_props.a')
+    expect(code).toContain('_props.b')
   })
 
   test('handles exported components', () => {
@@ -156,6 +156,6 @@ describe('transformForLinting', () => {
         return <div>{size}</div>
       }
     `)
-    expect(code).toContain('props.size')
+    expect(code).toContain('_props.size')
   })
 })

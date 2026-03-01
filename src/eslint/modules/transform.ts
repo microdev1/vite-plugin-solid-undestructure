@@ -1,8 +1,9 @@
 import generateImport from '@babel/generator'
 import { parse } from '@babel/parser'
-import traverseImport, { NodePath, Visitor } from '@babel/traverse'
+import traverseImport, { NodePath } from '@babel/traverse'
 import * as t from '@babel/types'
 import { checkIfComponent } from '../../modules/component-detector'
+import { extractPropsInfo, replacePropsReferences } from '../../modules/props-transformer'
 
 // Handle ESM/CJS interop
 const traverse =
@@ -17,7 +18,7 @@ export type TransformResult = {
 }
 
 /**
- * Transforms destructured component props into `props.X` member expressions
+ * Transforms destructured component props into `_props.X` member expressions
  * for linting purposes. This is a minimal transformation — no mergeProps/splitProps/imports
  * are added, only the patterns the eslint-plugin-solid reactivity rule needs to see.
  */
@@ -48,7 +49,30 @@ export function transformForLinting(code: string): TransformResult | null {
 
         if (!checkIfComponent(path)) return
 
-        transformDestructuredProps(path, firstParam, propMappings)
+        // Extract info using shared utility
+        const info = extractPropsInfo(firstParam)
+
+        // Build propMappings from extracted info
+        for (const [localName, key] of info.localToKey) {
+          propMappings.set(localName, key)
+        }
+        for (const [localName, propPath] of info.nestedPropPaths) {
+          propMappings.set(localName, propPath.join('.'))
+        }
+
+        // Replace parameter with _props identifier
+        const propsIdentifier = t.identifier('_props')
+        if (firstParam.typeAnnotation) {
+          propsIdentifier.typeAnnotation = firstParam.typeAnnotation
+        }
+        path.node.params[0] = propsIdentifier
+
+        // Replace references using shared utility
+        const bodyPath = path.get('body')
+        if (!Array.isArray(bodyPath)) {
+          replacePropsReferences(bodyPath, '_props', info)
+        }
+
         transformed = true
       }
     })
@@ -68,113 +92,4 @@ export function transformForLinting(code: string): TransformResult | null {
     console.warn('Failed to transform:', error)
     return null
   }
-}
-
-function transformDestructuredProps(
-  path: NodePath<t.Function>,
-  objectPattern: t.ObjectPattern,
-  propMappings: Map<string, string>
-) {
-  const propsIdentifier = t.identifier('props')
-
-  // Preserve TypeAnnotation from the destructured param
-  if (objectPattern.typeAnnotation) {
-    propsIdentifier.typeAnnotation = objectPattern.typeAnnotation
-  }
-
-  // Extract prop names and build mappings
-  const localNames: string[] = []
-  const localToKey = new Map<string, string>()
-  const nestedPropPaths = new Map<string, string[]>()
-
-  function processObjectPattern(pattern: t.ObjectPattern, parentPath: string[] = []) {
-    for (const prop of pattern.properties) {
-      if (t.isRestElement(prop)) {
-        // Rest elements are not reactive — leave as-is
-        continue
-      }
-
-      if (!t.isObjectProperty(prop)) continue
-
-      let key: string | null = null
-      if (t.isIdentifier(prop.key)) {
-        key = prop.key.name
-      } else if (t.isStringLiteral(prop.key)) {
-        key = prop.key.value
-      }
-      if (!key) continue
-
-      const currentPath = [...parentPath, key]
-
-      // Handle nested object patterns
-      if (t.isObjectPattern(prop.value)) {
-        processObjectPattern(prop.value, currentPath)
-        continue
-      }
-
-      // Extract local name
-      let localName: string | null = null
-      if (t.isIdentifier(prop.value)) {
-        localName = prop.value.name
-      } else if (t.isAssignmentPattern(prop.value) && t.isIdentifier(prop.value.left)) {
-        localName = prop.value.left.name
-      }
-
-      if (!localName) continue
-
-      if (parentPath.length === 0) {
-        localNames.push(localName)
-        localToKey.set(localName, key)
-        propMappings.set(localName, key)
-      } else {
-        nestedPropPaths.set(localName, currentPath)
-        propMappings.set(localName, currentPath.join('.'))
-      }
-    }
-  }
-
-  processObjectPattern(objectPattern)
-
-  // Replace parameter with `props` identifier
-  path.node.params[0] = propsIdentifier
-
-  // Replace all references to destructured prop names with props.X
-  const bodyPath = path.get('body')
-  if (Array.isArray(bodyPath)) return
-
-  const visitor: Visitor = {
-    Identifier(identPath) {
-      const parent = identPath.parent
-      // Skip property keys and computed member expression properties
-      if (
-        (t.isMemberExpression(parent) && parent.property === identPath.node && !parent.computed) ||
-        (t.isObjectProperty(parent) && parent.key === identPath.node && !parent.computed)
-      ) {
-        return
-      }
-
-      // Skip binding positions (declarations)
-      if (identPath.isBindingIdentifier()) return
-
-      const idPath = identPath as NodePath<t.Identifier>
-      const name = idPath.node.name
-
-      // Handle nested property paths
-      const propPath = nestedPropPaths.get(name)
-      if (propPath) {
-        let memberExpr: t.MemberExpression = t.memberExpression(
-          t.identifier('props'),
-          t.identifier(propPath[0])
-        )
-        for (let i = 1; i < propPath.length; i++) {
-          memberExpr = t.memberExpression(memberExpr, t.identifier(propPath[i]))
-        }
-        idPath.replaceWith(memberExpr)
-      } else if (localNames.includes(name)) {
-        const propKey = localToKey.get(name) ?? name
-        idPath.replaceWith(t.memberExpression(t.identifier('props'), t.identifier(propKey)))
-      }
-    }
-  }
-  bodyPath.traverse(visitor)
 }
