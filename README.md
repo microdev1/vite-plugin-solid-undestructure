@@ -202,3 +202,54 @@ function TestComponent(_props) {
 ```bash
 bun test
 ```
+
+## ESLint Integration
+
+Since `eslint-plugin-solid`'s `solid/reactivity` rule doesn't know about this plugin, it will flag destructured props as non-reactive. The bundled ESLint processor fixes this by teaching the rule about destructured props.
+
+### Setup
+
+Install `eslint-plugin-solid`:
+
+```bash
+bun add -D eslint-plugin-solid
+```
+
+Add the processor to your ESLint config:
+
+```js
+// eslint.config.js
+import solid from 'eslint-plugin-solid'
+import solidUndestructure from 'vite-plugin-solid-undestructure/eslint'
+
+export default [
+  solidUndestructure.configs.recommended,
+  solid.configs['flat/typescript'],
+  {
+    rules: {
+      'solid/no-destructure': 'off'
+    }
+  }
+]
+```
+
+### How it works
+
+The processor transparently rewrites destructured props into `props.X` member expressions before the linter runs, so the existing `solid/reactivity` rule can correctly identify untracked reactive usages. Error messages are adjusted to reference the original destructured name.
+
+```tsx
+// Without the processor, solid/reactivity ignores `size` (not recognized as reactive)
+// With the processor, it correctly warns:
+function ExampleComponent({ size }: { size: 'sm' | 'lg' }) {
+  const dimensions =
+    // ↓ The reactive variable 'size' should be used within JSX, a tracked scope
+    //   (like createEffect), or inside an event handler. [solid/reactivity]
+    size === 'sm' ? { width: 4, height: 4 } : { width: 8, height: 8 }
+
+  // Correct usages that don't cause warnings:
+  // const dimensions = () => size === 'sm' ? ...
+  // const dimensions = createMemo(() => size === 'sm' ? ...)
+
+  return <img src="..." alt="..." {...dimensions()} />
+}
+```

@@ -36,6 +36,8 @@ export default (): Plugin => ({
       return null
     }
 
+    let transformed = false
+
     try {
       const ast = parse(code, {
         sourceType: 'module',
@@ -50,29 +52,27 @@ export default (): Plugin => ({
           if (params.length !== 1) return
 
           const firstParam = params[0]
-
-          // Check if first param is an object pattern (destructuring)
           if (!t.isObjectPattern(firstParam)) return
 
-          // Check if this is likely a component (returns JSX or has JSX in body)
-          const isComponent = checkIfComponent(path)
-          if (!isComponent) return
+          if (!checkIfComponent(path)) return
 
           transformPropsDestructuring(path, firstParam)
+          transformed = true
         }
       })
+
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+      if (!transformed) {
+        return null
+      }
 
       const output = generate(astNode, {
         retainLines: true,
         compact: false
       })
 
-      return {
-        code: output.code,
-        map: output.map
-      }
+      return { code: output.code, map: output.map }
     } catch (error) {
-      // If parsing fails, return original code
       console.warn(`Failed to transform ${id}:`, error)
       return null
     }

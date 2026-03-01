@@ -16,11 +16,8 @@ describe('skipping', () => {
     expect(transform(code, 'Foo.tsx')).toBeNull()
   })
 
-  test('does not transform non-component functions', () => {
+  test('returns null on non-component functions', () => {
     const code = `function helper({ a, b }) { return a + b }`
-    const out = transform(code, 'utils.ts')
-    // Plugin still parses/generates but should NOT add mergeProps/splitProps
-    expect(out).not.toContain('_$mergeProps')
-    expect(out).not.toContain('_$splitProps')
+    expect(transform(code, 'utils.ts')).toBeNull()
   })
 })

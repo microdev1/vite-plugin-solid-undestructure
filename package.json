@@ -1,11 +1,21 @@
 {
   "name": "vite-plugin-solid-undestructure",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Automatically transforms props destructuring in SolidJS components",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./eslint": {
+      "import": "./dist/eslint/index.js",
+      "types": "./dist/eslint/index.d.ts"
+    }
+  },
   "files": [
     "dist"
   ],
@@ -21,12 +31,13 @@
   ],
   "license": "MIT",
   "scripts": {
-    "build": "bun build src --minify --packages=external --outfile=dist/index.js && tsc --declaration --emitDeclarationOnly --outDir dist",
+    "build": "bun build src/index.ts --minify --packages=external --outfile=dist/index.js && bun build src/eslint/index.ts --minify --packages=external --outfile=dist/eslint/index.js && tsc --declaration --emitDeclarationOnly --outDir dist",
     "type": "tsc --noEmit",
     "lint": "eslint --cache src",
     "format": "prettier --write *",
     "test": "bun test tests",
-    "check:format": "prettier --check *"
+    "check:format": "prettier --check *",
+    "pre": "bun type && bun lint && bun format"
   },
   "dependencies": {
     "@babel/generator": "^7.29.1",
@@ -47,7 +58,16 @@
     "typescript-eslint": "^8.56.1"
   },
   "peerDependencies": {
+    "eslint": "^9.0.0",
     "eslint-plugin-solid": "^0.14.5",
     "vite": "^7.3.1"
+  },
+  "peerDependenciesMeta": {
+    "eslint": {
+      "optional": true
+    },
+    "eslint-plugin-solid": {
+      "optional": true
+    }
   }
 }
