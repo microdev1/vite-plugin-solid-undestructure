@@ -1,8 +1,8 @@
-import { checkIfComponent } from '@/modules/component-detector'
 import generateImport from '@babel/generator'
 import { parse } from '@babel/parser'
 import traverseImport, { NodePath, Visitor } from '@babel/traverse'
 import * as t from '@babel/types'
+import { checkIfComponent } from '../../modules/component-detector'
 
 // Handle ESM/CJS interop
 const traverse =
