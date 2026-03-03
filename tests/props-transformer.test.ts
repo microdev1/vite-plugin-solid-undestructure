@@ -67,6 +67,18 @@ function Card({ title, ...props }) {
     expectContains(out, '"title"')
     expectContains(out, 'props')
   })
+
+  test('rest-only spread skips splitProps', () => {
+    const code = `
+function Component({ ...props }) {
+  return <div {...props} />
+}
+`
+    const out = transformOrThrow(code)
+    expectNotContains(out, 'splitProps')
+    expectContains(out, 'props')
+    expectNotMatches(out, /function Component\(\s*\{/)
+  })
 })
 
 // ─── Nested Destructuring ────────────────────────────────────────────────────

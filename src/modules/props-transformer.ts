@@ -184,11 +184,18 @@ export function transformPropsDestructuring(
   const info = extractPropsInfo(objectPattern)
   const { propsToSplit, defaultValues, hasRestElement, restIdentifier } = info
 
-  // Replace parameter with single props identifier
-  path.node.params[0] = propsIdentifier
-
   // Create statements to add at the beginning of function body
   const newStatements: t.Statement[] = []
+
+  // If only a rest element with no other props or defaults, just rename the parameter
+  const restOnly = hasRestElement && propsToSplit.length === 0 && Object.keys(defaultValues).length === 0
+  if (restOnly && restIdentifier) {
+    path.node.params[0] = restIdentifier
+    return
+  }
+
+  // Replace parameter with single props identifier
+  path.node.params[0] = propsIdentifier
 
   // Add import for mergeProps and splitProps if needed
   const needsMergeProps = Object.keys(defaultValues).length > 0

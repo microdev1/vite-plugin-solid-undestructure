@@ -6,8 +6,7 @@ const transformCache = new Map<string, TransformResult>()
 
 export const processor: Linter.Processor = {
   meta: {
-    name: 'solid-undestructure',
-    version: '0.1.1'
+    name: 'solid-undestructure'
   },
 
   preprocess(text: string, filename: string) {

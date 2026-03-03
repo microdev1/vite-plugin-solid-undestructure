@@ -187,6 +187,17 @@ describe('transformForLinting', () => {
     expect(code).toContain('_props.extra')
   })
 
+  test('rest-only spread skips splitProps and uses rest name directly', () => {
+    const code = transformCode(`
+      function Component({ ...props }) {
+        return <div {...props} />
+      }
+    `)
+    expect(code).toContain('function Component(props)')
+    expect(code).not.toContain('splitProps')
+    expect(code).not.toContain('_props')
+  })
+
   test('populates propAccess map with full access patterns', () => {
     const result = transformForLinting(`
       function Component({ size: mySize, color }) {

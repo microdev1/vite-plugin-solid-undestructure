@@ -100,6 +100,17 @@ export function transformForLinting(code: string): TransformResult | null {
         // Extract info using shared utility
         const info = extractPropsInfo(firstParam)
 
+        // If only a rest element with no other props, just rename the parameter
+        const restOnly = info.hasRestElement && info.propsToSplit.length === 0 && info.localNames.length === 0
+        if (restOnly && info.restIdentifier) {
+          if (firstParam.typeAnnotation) {
+            info.restIdentifier.typeAnnotation = firstParam.typeAnnotation
+          }
+          path.node.params[0] = info.restIdentifier
+          transformed = true
+          return
+        }
+
         // Generate a unique identifier to avoid conflicts with user-defined _props
         const propsIdentifier = path.scope.generateUidIdentifier('props')
         const propsIdName = propsIdentifier.name
