@@ -1,5 +1,5 @@
 import { describe, test } from 'bun:test'
-import { expectContains, expectMatches, transformOrThrow } from './helpers'
+import { expectContains, expectMatches, transformOrThrow } from '../helpers'
 
 describe('import-manager: mergeProps import', () => {
   test('adds mergeProps import when no solid-js import exists', () => {

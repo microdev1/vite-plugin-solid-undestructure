@@ -1,6 +1,6 @@
+import solidPropsTransform from '@src/vite'
 import { expect } from 'bun:test'
 import { Plugin } from 'vite'
-import solidPropsTransform from '../src'
 
 /** Run the plugin's transform and return the output code (or null) */
 export function transform(code: string, id = 'Component.tsx'): string | null {

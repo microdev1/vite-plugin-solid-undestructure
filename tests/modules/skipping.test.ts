@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import { transform } from './helpers'
+import { transform } from '../helpers'
 
 describe('skipping', () => {
   test('returns null for non-tsx/jsx files', () => {

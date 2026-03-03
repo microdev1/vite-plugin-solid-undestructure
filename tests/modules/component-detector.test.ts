@@ -1,5 +1,5 @@
 import { describe, test } from 'bun:test'
-import { expectContains, transformOrThrow } from './helpers'
+import { expectContains, transformOrThrow } from '../helpers'
 
 describe('component definition styles', () => {
   test('default export function declaration', () => {

@@ -31,7 +31,10 @@
   ],
   "license": "MIT",
   "scripts": {
-    "build": "bun build src/index.ts --minify --packages=external --outfile=dist/index.js && bun build src/eslint/index.ts --minify --packages=external --outfile=dist/eslint/index.js && tsc --declaration --emitDeclarationOnly --outDir dist",
+    "build": "bun build:type && bun build:vite && bun build:eslint",
+    "build:type": "tsc --declaration --emitDeclarationOnly --outDir dist",
+    "build:vite": "bun build src/vite/index.ts --minify --packages=external --outfile=dist/index.js",
+    "build:eslint": "bun build src/eslint/index.ts --minify --packages=external --outfile=dist/eslint/index.js",
     "type": "tsc --noEmit",
     "lint": "eslint --cache src",
     "format": "prettier --write *",
